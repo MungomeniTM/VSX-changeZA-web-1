@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Explore — VSXchangeZA</title>
+  <meta name="color-scheme" content="dark light" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/src/css/explore.css" />
+</head>
+<body>
+  <!-- 🌌 Cosmic Navbar -->
+  <header class="appbar">
+    <div class="appbar-row container">
+      <button id="hamburger" class="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+
+      <a class="brand" href="./dashboard.html">VSXchangeZA</a>
+
+      <form id="searchForm" class="search" role="search" onsubmit="return false;" autocomplete="off">
+        <input id="globalSearch" name="q" type="search" placeholder="Search skills, people, farms…" />
+        <button id="searchBtn" type="button">⌕</button>
+      </form>
+
+      <nav class="topnav">
+        <a href="/frontend/public/dashboard.html">Home</a>
+        <a href="/frontend/public/messages.html">Messages</a>
+        <a href="/frontend/public/explore.html" class="active">Explore</a>
+        <a href="/frontend/public/profile.html" id="profileLink">Profile</a>
+        <a href="/frontend/public/settings.html">Settings</a>
+        <button id="toggleTheme" class="btn ghost" title="Toggle theme" aria-pressed="false">🌗</button>
+        <button id="logout" class="btn ghost" title="Logout"><a href="/frontend/public/logout.html">Logout</a></button>
+      
+      </nav>
+    </div>
+  </header>
+
+  <!-- 🪐 Explore Main Layout -->
+  <main class="container explore-layout">
+    <section class="left-panel">
+      <div class="card">
+        <h4>Categories</h4>
+        <div id="categoryGrid" class="category-grid"></div>
+      </div>
+
+      <div class="card">
+        <h4>Nearby (use location)</h4>
+        <button id="useMyLocation" class="btn ghost full">Use my location</button>
+      </div>
+    </section>
+
+    <section class="center-panel">
+      <div class="search-row">
+        <input id="exploreSkill" placeholder="Skill (e.g. electrician, plumber)" />
+        <input id="exploreLocation" placeholder="Location (city, province)" />
+        <button id="exploreSearch" class="btn primary">Search</button>
+      </div>
+
+      <div id="resultsInfo" class="muted small">Enter skill or location and press Search</div>
+      <div id="results" class="results-grid"></div>
+      <div id="loadMoreWrap" style="text-align:center;margin-top:12px;">
+        <button id="loadMore" class="btn ghost">Load more</button>
+      </div>
+    </section>
+
+    <aside class="right-panel">
+      <div class="card">
+        <h4>People you may want to collaborate with</h4>
+        <div id="suggestions" class="suggestions"></div>
+      </div>
+    </aside>
+  </main>
+
+  <template id="userCardTpl">
+    <article class="user-card card">
+      <div class="u-top">
+        <div class="avatar small">👤</div>
+        <div class="meta">
+          <div class="name"></div>
+          <div class="muted small loc"></div>
+        </div>
+      </div>
+      <div class="skills small muted"></div>
+      <div class="u-actions">
+        <a class="btn ghost viewBtn">View</a>
+        <button class="btn primary connectBtn">Message</button>
+      </div>
+    </article>
+  </template>
+
+  <script src="/frontend/src/js/explore.js" type="module"></script>
+</body>
+</html>
+  

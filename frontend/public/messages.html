@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Messages | VSXchangeZA</title>
+  <link rel="stylesheet" href="/frontend/src/css/messages.css" />
+  <script defer src="/frontend/src/js/messages.js"></script>
+</head>
+<body>
+  <header class="appbar">
+    <div class="container appbar-row">
+      <a href="dashboard.html" class="brand">VSXchange<span>ZA</span></a>
+        <form id="searchForm" class="search" role="search" onsubmit="return false;" autocomplete="off">
+        <input id="globalSearch" name="q" type="search" placeholder="Search skills, people, farms…" aria-label="Search the network" />
+        <button id="searchBtn" type="button" aria-label="Search">⌕</button>
+        <ul id="searchResults" class="search-results" role="listbox" aria-hidden="true"></ul>
+      </form>
+      <nav class="topnav">
+        
+      <nav class="topnav">
+        <a href="/frontend/public/dashboard.html">Home</a>
+        <a href="/frontend/public/messages.html">Messages</a>
+        <a href="/frontend/public/explore.html" class="active">Explore</a>
+        <a href="/frontend/public/profile.html" id="profileLink">Profile</a>
+        <a href="/frontend/public/settings.html">Settings</a>
+        <button id="toggleTheme" class="btn ghost" title="Toggle theme" aria-pressed="false">🌗</button>
+        <button id="logout" class="btn ghost" title="Logout"><a href="/frontend/public/logout.html">Logout</a></button>
+      </nav>
+      </nav>
+    </div>
+  </header>
+
+  <main class="layout messages-layout container">
+    <aside class="chat-list card">
+      <h2>Conversations</h2>
+      <div id="chatList"></div>
+    </aside>
+
+    <section class="chat-window card">
+      <div class="chat-header">
+        <h2 id="chatWith">Select a user</h2>
+      </div>
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Type your message..." />
+        <button id="sendBtn" class="btn primary">Send 🚀</button>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

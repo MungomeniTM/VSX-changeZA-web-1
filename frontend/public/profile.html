@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile — VSXchangeZA</title>
+  <meta name="color-scheme" content="dark light" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/frontend/src/css/dashboard.css" />
+  <link rel="stylesheet" href="/frontend/src/css/profile.css" />
+</head>
+<body>
+  <header class="appbar" role="banner">
+    <div class="appbar-row container">
+      <a class="brand" href="/frontend/public/dashboard.html" aria-label="VSXchangeZA home">VSXchangeZA</a>
+
+       <form id="searchForm" class="search" role="search" onsubmit="return false;" autocomplete="off">
+        <input id="globalSearch" name="q" type="search" placeholder="Search skills, people, farms…" aria-label="Search the network" />
+        <button id="searchBtn" type="button" aria-label="Search">⌕</button>
+        <ul id="searchResults" class="search-results" role="listbox" aria-hidden="true"></ul>
+      </form>
+
+        <nav class="topnav" aria-label="Primary">
+        <a href="/frontend/public/dashboard.html" class="active">Home</a>
+        <a href="/frontend/public/messages.html">Messages</a>
+        <a href="/frontend/public/explore.html">Explore</a>
+        <a href="/frontend/public/profile.html" id="profileLink">Profile</a>
+        <a href="/frontend/public/settings.html">Settings</a>
+        <button id="toggleTheme" class="btn ghost" title="Toggle theme" aria-pressed="false">🌗</button>
+        <button id="logout" class="btn ghost" title="Logout"><a href="/frontend/public/logout.html">Logout</a></button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container profile-layout" id="main">
+    <!-- left -->
+    <section class="card profile-card" id="profileCard" aria-label="Profile">
+      <div class="profile-hero">
+        <div class="avatar big" id="pAvatar">👤</div>
+        <div class="profile-meta">
+          <h1 id="pName">User</h1>
+          <div class="muted" id="pRole">Role</div>
+          <div class="muted small" id="pLocation">Location</div>
+        </div>
+      </div>
+
+      <div class="profile-stats">
+        <div class="stat-item"><strong id="pExperience">—</strong><small>Years</small></div>
+        <div class="stat-item"><strong id="pRating">—</strong><small>Rating</small></div>
+        <div class="stat-item"><strong id="pCustomers">—</strong><small>Customers</small></div>
+      </div>
+
+      <div class="profile-actions">
+        <button id="editProfile" class="btn primary">Edit profile</button>
+        <button id="msgProfile" class="btn ghost">Message</button>
+        <button id="callProfile" class="btn ghost">Contact</button>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <h4>Photos of work</h4>
+        <div id="photosGallery" class="gallery muted">No photos yet</div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <h4>Companies & Websites</h4>
+        <div id="companiesList" class="companies muted">No websites yet</div>
+      </div>
+    </section>
+
+    <!-- center: edit form -->
+    <section class="card profile-form" aria-label="Edit profile">
+      <h2>Profile & Portfolio</h2>
+      <form id="profileForm" novalidate>
+        <div class="row two">
+          <label>First name
+            <input id="firstName" name="firstName" type="text" required />
+          </label>
+          <label>Last name
+            <input id="lastName" name="lastName" type="text" required />
+          </label>
+        </div>
+
+        <div class="row two">
+          <label>Role
+            <select id="role" name="role" required>
+              <option value="">Select role</option>
+              <option value="client">Client</option>
+              <option value="farmer">Farmer</option>
+              <option value="skilled">Skilled</option>
+            </select>
+          </label>
+
+          <label>Location
+            <input id="location" name="location" placeholder="City, Province" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Profile Bio
+            <textarea id="bio" rows="4" placeholder="Describe your skills, services, availability..."></textarea>
+          </label>
+        </div>
+
+        <div class="row two">
+          <label>Hourly rate (optional)
+            <input id="rate" type="number" min="0" step="0.01" placeholder="R / hour" />
+          </label>
+          <label>Availability
+            <input id="availability" placeholder="e.g. Weekdays 09:00-15:00" />
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Skills (press Enter to add)
+            <div id="skillsInput" class="tags-input">
+              <input id="skillText" placeholder="Add a skill and press Enter" />
+            </div>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Portfolio (links)
+            <div id="portfolioList" class="portfolio-list"></div>
+            <div class="portfolio-add">
+              <input id="portfolioUrl" placeholder="https://your-site-or-file" />
+              <button id="addPortfolio" class="btn ghost" type="button">Add</button>
+            </div>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Photos (drag & drop or click)
+            <div id="dropzone" class="dropzone">
+              <input id="fileInput" type="file" accept="image/*,video/*" multiple hidden />
+              <div class="dz-instructions">Drop images here or <button id="chooseFiles" class="btn ghost" type="button">Choose files</button></div>
+              <div id="dzPreview" class="dz-preview"></div>
+            </div>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Companies / Websites
+            <div id="companiesInput" class="companies-input">
+              <input id="companyUrl" placeholder="https://company-or-farm-site.com" />
+              <button id="addCompany" class="btn ghost" type="button">Add</button>
+            </div>
+            <div id="companiesAdded" class="companies-list"></div>
+          </label>
+        </div>
+
+        <div class="row">
+          <label>Avatar URL
+            <input id="avatarUrl" placeholder="https://example.com/avatar.jpg" />
+          </label>
+        </div>
+
+        <div id="profileMsg" class="muted small"></div>
+        <div class="actions">
+          <button id="saveProfile" class="btn primary" type="submit">Save profile</button>
+          <button id="cancelProfile" class="btn ghost" type="button">Reset</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- right -->
+    <aside class="card profile-right" aria-label="Profile highlights">
+      <h3>Search & Visibility</h3>
+      <p class="muted small">Set your location and skills to be discoverable on Explore and nearby searches.</p>
+
+      <div style="margin-top:12px;">
+        <label class="muted small">Discoverability:</label>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <button id="toggleDiscover" class="btn ghost">Toggle</button>
+          <div id="discoverState" class="muted">Unknown</div>
+        </div>
+      </div>
+
+      <h4 style="margin-top:18px;">Portfolio Preview</h4>
+      <div id="portfolioPreview" class="portfolio-preview muted">No items yet</div>
+    </aside>
+  </main>
+
+  <!-- modal preview -->
+  <div id="mediaModal" class="media-modal hidden" role="dialog" aria-hidden="true">
+    <div class="media-modal-inner">
+      <button id="closeModal" class="btn ghost">Close</button>
+      <div id="mediaViewer"></div>
+    </div>
+  </div>
+
+  <script src="/frontend/public/api.js"></script>
+  <script src="./auth.js"></script>
+  <script src="./helpers.js"></script>
+  <script src="/frontend/src/js/profile.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — VSXchangeZA ⚡</title>
+  <link rel="stylesheet" href="/frontend/src/css/dashboard.css">
+  <link rel="stylesheet" href="/frontend/src/css/settings.css">
+  <link rel="icon" href="favicon.ico">
+</head>
+<body>
+
+  <!-- Appbar -->
+  <header class="appbar">
+    <div class="container appbar-row">
+      <a href="./dashboard.html" class="brand">VSXchangeZA ⚡</a>
+       <form id="searchForm" class="search" role="search" onsubmit="return false;" autocomplete="off">
+        <input id="globalSearch" name="q" type="search" placeholder="Search skills, people, farms…" aria-label="Search the network" />
+        <button id="searchBtn" type="button" aria-label="Search">⌕</button>
+        <ul id="searchResults" class="search-results" role="listbox" aria-hidden="true"></ul>
+      </form>
+      <nav class="topnav">
+        <a href="/frontend/public/dashboard.html">Home</a>
+        <a href="/frontend/public/messages.html">Messages</a>
+        <a href="/frontend/public/search.html">Explore</a>
+        <a href="/frontend/public/profile.html">Profile</a>
+        <a href="/frontend/public/settings.html" class="active">Settings</a>
+        <button id="logout" class="btn ghost" title="Logout"><a href="/frontend/public/logout.html">Logout</a></button>
+      </nav>
+      <button id="toggleTheme" class="btn ghost">☀️ / 🌙</button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <main class="container layout" style="grid-template-columns: 1fr;">
+    <!-- Account Settings -->
+    <section class="card plasma">
+      <h2 class="neon-heading">Account Settings ⚙️</h2>
+      <div class="stack">
+        <label>Full Name</label>
+        <input id="fullName" type="text" class="input-glass" placeholder="Your Name">
+
+        <label>Email</label>
+        <input id="email" type="email" class="input-glass" placeholder="Your Email">
+
+        <label>Password</label>
+        <input id="password" type="password" class="input-glass" placeholder="••••••••">
+
+        <button id="saveAccount" class="btn primary full">Save Changes 💾</button>
+      </div>
+    </section>
+
+    <!-- Privacy & Security -->
+    <section class="card plasma">
+      <h2 class="neon-heading">Privacy & Security 🔒</h2>
+      <div class="stack">
+        <label class="toggle">
+          <input type="checkbox" id="privateMode"> Private Profile
+        </label>
+        <label class="toggle">
+          <input type="checkbox" id="twoFA"> Two-Factor Authentication
+        </label>
+        <button id="downloadData" class="btn ghost full">Download My Data 📦</button>
+      </div>
+    </section>
+
+    <!-- Notifications -->
+    <section class="card plasma">
+      <h2 class="neon-heading">Notifications 🔔</h2>
+      <div class="stack">
+        <label class="toggle"><input type="checkbox" id="notifMessages" checked> New Messages</label>
+        <label class="toggle"><input type="checkbox" id="notifApprovals" checked> Approvals & Collaborations</label>
+        <label class="toggle"><input type="checkbox" id="notifUpdates"> Platform Updates</label>
+      </div>
+    </section>
+
+    <!-- Links -->
+    <section class="card plasma">
+      <h2 class="neon-heading">Links & Resources 🌐</h2>
+      <div class="stack">
+        <a href="./help.html" class="btn ghost full">Help Center</a>
+        <a href="./terms.html" class="btn ghost full">Terms of Service</a>
+        <a href="./privacy.html" class="btn ghost full">Privacy Policy</a>
+        <a href="https://vsxchangeza.africa" target="_blank" class="btn primary full">Official Website 🌍</a>
+      </div>
+    </section>
+
+    <!-- Feedback -->
+    <section class="card plasma">
+      <h2 class="neon-heading">Support & Feedback 💬</h2>
+      <div class="stack">
+        <textarea id="feedback" placeholder="Tell us how we can improve..." class="input-glass"></textarea>
+        <button id="sendFeedback" class="btn primary full">Send Feedback 🚀</button>
+      </div>
+    </section>
+
+    <!-- Developer Mode -->
+    <section class="card plasma" id="devSection">
+      <h2 class="neon-heading">Developer Mode ⚡</h2>
+      <div class="stack">
+        <label class="toggle"><input type="checkbox" id="enableDev"> Enable Developer Mode 👽</label>
+        <div id="devOptions" class="hidden">
+          <button class="btn ghost full" id="aiLayout">Activate AI Layout 🧠</button>
+          <button class="btn ghost full" id="energyTheme">Live Energy Theme 🌈</button>
+          <button class="btn ghost full" id="voiceControl">Enable Voice Control 🎙️</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/frontend/src/js/settings.js"></script>
+</body>
+</html>

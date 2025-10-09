@@ -1,0 +1,70 @@
+/* VSXchangeZA — Settings Cosmic Layer 👽 */
+
+.plasma {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  transition: all 0.5s ease-in-out;
+}
+
+.plasma::before {
+  content: "";
+  position: absolute;
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--blue), var(--mint), var(--green), var(--blue));
+  background-size: 400%;
+  filter: blur(12px);
+  opacity: 0.25;
+  z-index: 0;
+  animation: plasmaMove 15s linear infinite;
+}
+
+@keyframes plasmaMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.plasma > * { position: relative; z-index: 1; }
+
+.neon-heading {
+  font-size: 1.4rem;
+  background: var(--grad1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.8rem;
+}
+
+.input-glass {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+}
+.input-glass:focus {
+  border-color: var(--mint);
+  background: rgba(255,255,255,0.05);
+  outline: none;
+}
+
+.hidden { display: none; }
+
+.energy-active {
+  animation: auraPulse 10s infinite alternate;
+  background: radial-gradient(circle at center, rgba(0,255,200,0.15), transparent 70%);
+}
+
+@keyframes auraPulse {
+  from { background: radial-gradient(circle at center, rgba(0,255,255,0.15), transparent 70%); }
+  to { background: radial-gradient(circle at center, rgba(0,255,100,0.15), transparent 70%); }
+}

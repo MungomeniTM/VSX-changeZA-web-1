@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VSXchange ZA - Connect, Collaborate & Analyze</title>
+  <meta name="description" content="VSXchange ZA connects skilled professionals and farmers across Africa in one trusted network. Showcase skills, track farms, and leverage data analytics for smarter decisions." />
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/frontend/src/css/index.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header" role="banner">
+    <div class="container header-container">
+      <div class="logo">
+        <a href="#home" aria-label="VSXchange ZA Home">VSXchange ZA</a>
+      </div>
+
+      <nav class="nav" id="nav-menu" role="navigation" aria-label="Primary">
+        <ul>
+          <li><a class="active" href="#home">Home</a></li>
+          <li><a href="#services">Services</a></li>
+          <li><a href="#explore">Explore</a></li>
+          <li><a href="#about">About</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="auth-buttons">
+        <a href="login.html" class="btn btn-outline">Login</a>
+        <a href="register.html" class="btn btn-solid">Sign Up</a>
+      </div>
+
+      <button class="mobile-toggle" id="mobile-toggle" aria-label="Toggle navigation" aria-controls="nav-menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero" id="home" aria-labelledby="hero-title">
+    <div class="hero-bg">
+      <div class="glow glow-a"></div>
+      <div class="glow glow-b"></div>
+      <div class="glow glow-c"></div>
+      <div class="grid-overlay" aria-hidden="true"></div>
+    </div>
+
+    <div class="hero-content container">
+      <h1 id="hero-title" class="hero-title">Welcome to <span>VSXchange ZA</span></h1>
+      <p class="hero-subtitle">
+        Empowering skills, tracking farms, and leveraging data analytics for smarter collaboration and growth across Africa.
+      </p>
+
+      <div class="cta-row">
+        <a href="register.html" class="btn btn-cta" data-cta="primary" aria-label="Join VSXchange ZA">
+          <span class="btn-glow"></span>
+          <span class="btn-label">Join the Movement</span>
+          <span class="btn-ring" aria-hidden="true"></span>
+        </a>
+        <a href="#explore" class="btn btn-ghost">Explore Skills & Farms</a>
+      </div>
+
+      <div class="trust-strip" role="note" aria-label="Trust signals">
+        <span class="dot"></span> Built in South Africa • Designed for Africa • Ready for the world
+      </div>
+    </div>
+  </section>
+
+  <!-- Services -->
+  <section id="services" class="section" aria-labelledby="services-title">
+    <div class="section-container container">
+      <h2 id="services-title" class="section-title">Our Services</h2>
+      <p class="section-lead">
+        Showcase your work, track farms, analyze data, and collaborate with verified professionals across Africa.
+      </p>
+
+      <div class="cards">
+        <article class="card reveal">
+          <h3>Find Talent Nearby</h3>
+          <p>Search verified pros and farmers by skill, farm type & location. From electricians to agro-experts.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Track Farm Productivity</h3>
+          <p>Monitor farm outputs, yields, and growth trends using real-time data analytics for smarter decisions.</p>
+        </article>
+        <article class="card reveal">
+          <h3>Data-Driven Decisions</h3>
+          <p>Leverage analytics dashboards to optimize projects, farming, and collaboration impact.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explore -->
+  <section id="explore" class="section" aria-labelledby="explore-title">
+    <div class="section-container container">
+      <h2 id="explore-title" class="section-title">Explore Skills & Farms</h2>
+      <p class="section-lead">Browse talents and farmers across South Africa. Filter by category, location, and performance metrics.</p>
+      <a href="explore.html" class="btn btn-solid">Start Exploring</a>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="section" aria-labelledby="about-title">
+    <div class="section-container container">
+      <h2 id="about-title" class="section-title">About VSXchange</h2>
+      <p class="section-lead">
+        Built for Africa, by Africans. VSXchange ZA bridges the gap between skill and demand, empowering professionals and farmers with trusted collaboration and data insights.
+      </p>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="section" aria-labelledby="contact-title">
+    <div class="section-container container">
+      <h2 id="contact-title" class="section-title">Contact Us</h2>
+      <p class="section-lead">Have questions or want to partner? Let’s talk.</p>
+      <div class="contact-actions">
+        <a href="mailto:support@vsxchangeza.com" class="btn btn-ghost">Email Us</a>
+        <a href="register.html" class="btn btn-solid">Create Account</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer role="contentinfo" class="footer">
+    <div class="container footer-inner">
+      <p>&copy; 2025 VSXchange ZA. All Rights Reserved.</p>
+      <nav class="footer-nav" aria-label="Footer">
+        <a href="#home">Home</a>
+        <a href="#services">Services</a>
+        <a href="#explore">Explore</a>
+        <a href="#about">About</a>
+      </nav>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="/frontend/src/js/index.js"></script>
+</body>
+</html>

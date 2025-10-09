@@ -1,0 +1,165 @@
+/* ========== Root & Reset ========== */
+:root {
+  --black: #000000;
+  --pitch: #0b0b0c;
+  --ink: #101114;
+  --blue: #1e90ff;
+  --green: #32cd32;
+  --mint: #00f0a8;
+  --text: #e8e8ea;
+  --muted: #a7a7ad;
+  --line: #1a1a1d;
+  --focus: #8fdcff;
+  --radius: 14px;
+  --shadow-1: 0 6px 24px rgba(0,0,0,0.25);
+  --shadow-2: 0 18px 60px rgba(0,0,0,0.45);
+  --speed-1: 180ms;
+  --speed-2: 320ms;
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--black);
+  color: var(--text);
+  line-height: 1.6;
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+/* ========== Auth Body & Container ========== */
+.auth-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+  background: radial-gradient(80% 60% at 50% 0%, #0f1218 0%, #090a0d 38%, #050506 100%);
+}
+
+.auth-container {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+  background: rgba(20,20,20,0.95);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  transition: transform var(--speed-2) var(--ease), box-shadow var(--speed-2) var(--ease);
+}
+
+.auth-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0 50px rgba(0,255,180,0.6);
+}
+
+/* ========== Auth Title ========== */
+.auth-title {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
+  background: linear-gradient(90deg, var(--blue), var(--green), var(--mint));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ========== Inputs ========== */
+form input, form select {
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--ink);
+  color: var(--text);
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+form input:focus, form select:focus {
+  outline: none;
+  box-shadow: 0 0 12px var(--focus);
+  background: #1b1b1b;
+}
+
+/* ========== Submit Button ========== */
+button[type="submit"] {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: #061015;
+  background: linear-gradient(135deg, var(--blue), var(--green), var(--mint));
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0 6px 22px rgba(0,255,180,0.4);
+}
+
+button[type="submit"]:hover {
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.05);
+  box-shadow: 0 8px 28px rgba(0,255,180,0.6);
+}
+
+/* ========== Auth Switch (Login/Register Links) ========== */
+.auth-switch {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+.auth-switch a {
+  color: var(--mint);
+  font-weight: 700;
+  text-decoration: none;
+  transition: all var(--speed-1) var(--ease);
+}
+
+.auth-switch a:hover {
+  text-shadow: 0 0 10px var(--mint);
+}
+
+/* ========== Glow Effects ========== */
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  opacity: 0.6;
+  will-change: transform;
+  z-index: 1;
+}
+
+.glow-a { background: radial-gradient(circle,#1e90ff 0%,transparent 70%); top: -10%; left: -5%; animation: drift-a 16s ease-in-out infinite alternate; }
+.glow-b { background: radial-gradient(circle,#32cd32 0%,transparent 70%); bottom: -10%; right: -5%; animation: drift-b 18s ease-in-out infinite alternate; }
+.glow-c { background: radial-gradient(circle,#00f0a8 0%,transparent 70%); top: 30%; right: 20%; animation: drift-c 20s ease-in-out infinite alternate; }
+
+@keyframes drift-a { 0% { transform: translate(0,0); } 100% { transform: translate(50px,60px); } }
+@keyframes drift-b { 0% { transform: translate(0,0); } 100% { transform: translate(-40px,-50px); } }
+@keyframes drift-c { 0% { transform: translate(0,0); } 100% { transform: translate(30px,-40px); } }
+
+/* ========== Responsive ========== */
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 2rem;
+    max-width: 360px;
+  }
+  .auth-title { font-size: 1.8rem; }
+  form input, form select, button[type="submit"] { padding: 12px 14px; font-size: 1rem; }
+}
