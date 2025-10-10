@@ -1,10 +1,23 @@
 # backend/app/core/config.py
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(BASE_DIR, '../../vsxchange.db')}")
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", os.path.join(BASE_DIR, "../../uploads"))
+# Database URL — adjust if needed
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./vsxchangeza.db")
+
+# Engine setup
+engine = create_engine(
+    DATABASE_URL,
+    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+)
+
+# Base class for models
+Base = declarative_base()
+
+# Session factory
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# API settings
 API_PREFIX = "/api"
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60*24
+UPLOAD_DIR = "uploads"
