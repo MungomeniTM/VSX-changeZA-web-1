@@ -1,7 +1,7 @@
 // frontend/public/api.js
 (function () {
   // Change if your backend is on a different origin/port
-  const API_BASE = window.API_BASE || "http://localhost:8000";
+  const API_BASE = window.API_BASE || "http://localhost:5000";
 
   async function request(path, opts = {}) {
     // normalized path (ensure starts with /)
