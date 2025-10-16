@@ -21,46 +21,50 @@ window.auth = {
 // ===========================
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ---------------------------
-  // REGISTER
-  // ---------------------------
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
+// ---------------------------
+// REGISTER
+// ---------------------------
+const registerForm = document.getElementById("registerForm");
+if (registerForm) {
+  registerForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const name = document.getElementById("name").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      const role = document.getElementById("role").value;
+    const fullName = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const role = document.getElementById("role").value;
 
-      if (!role) return alert("Please select a role");
-      if (password !== confirmPassword) return alert("Passwords do not match");
+    if (!role) return alert("Please select a role");
+    if (password !== confirmPassword) return alert("Passwords do not match");
 
-      try {
-        const res = await fetch(`${API_URL}/auth/register`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password, role }),
-        });
+    // 🧠 Split full name into first and last names
+    const [first_name, ...rest] = fullName.split(" ");
+    const last_name = rest.join(" ") || "";
 
-        const data = await res.json();
+    try {
+      const res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ first_name, last_name, email, password, role }),
+      });
 
-        if (res.ok) {
-          console.log("✅ Registered successfully:", data);
-          alert("Registration successful! Redirecting to login…");
-          window.location.href = "login.html"; // Perfect redirection
-        } else {
-          console.error("❌ Registration failed:", data);
-          alert(`Registration failed: ${data.detail || "Unknown error"}`);
-        }
-      } catch (err) {
-        console.error("⚠️ Register error:", err);
-        alert("Server error: Unable to reach API. Make sure backend is running on port 8000.");
+      const data = await res.json();
+
+      if (res.ok) {
+        console.log("✅ Registered successfully:", data);
+        alert("Registration successful! Redirecting to login…");
+        window.location.href = "login.html";
+      } else {
+        console.error("❌ Registration failed:", data);
+        alert(`Registration failed: ${data.detail || "Unknown error"}`);
       }
-    });
-  }
+    } catch (err) {
+      console.error("⚠️ Register error:", err);
+      alert("Server error: Unable to reach API. Make sure backend is running on port 8000.");
+    }
+  });
+}
 
   // ---------------------------
   // LOGIN
