@@ -1,7 +1,7 @@
 // ===========================
 // API BASE URL
 // ===========================
-const API_URL = "http://127.0.0.1:8000"; // Backend running on 8000
+const API_URL = "http://127.0.0.1:5000"; // Backend running on 8000
 
 // ===========================
 // AUTH UTILITIES
@@ -100,7 +100,7 @@ if (registerForm) {
         }
       } catch (err) {
         console.error("⚠️ Login error:", err);
-        alert("Server error: Unable to reach API. Make sure backend is running on port 8000.");
+        alert("Server error: Unable to reach API. Make sure backend is running on port 5000.");
       }
     });
   }
