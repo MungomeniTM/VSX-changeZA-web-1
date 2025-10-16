@@ -1,7 +1,7 @@
 // ===========================
 // API BASE URL
 // ===========================
-const API_URL = "http://127.0.0.1:8000"; // Backend running on 8000
+const API_URL = "http://127.0.0.1:5000"; // Backend running on 8000
 
 // ===========================
 // AUTH UTILITIES
