@@ -1,7 +1,7 @@
 // api.js — robust API wrapper (no-404; configurable base)
 (function () {
   // change this if your backend runs on another host/port
-  const DEFAULT = (location.hostname === 'localhost') ? 'http://127.0.0.1:8000/api' : '/api';
+  const DEFAULT = (location.hostname === 'localhost') ? 'http://127.0.0.1:5000/api' : '/api';
   window.API_BASE = window.API_BASE || DEFAULT;
 
   function ensurePath(p) {
