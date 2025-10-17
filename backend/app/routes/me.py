@@ -1,61 +1,62 @@
-from fastapi import APIRouter, Depends, Request, HTTPException
-from sqlalchemy.orm import Session
-from app.core.database import get_db
-from app.models.user import User
-from app.routes.posts import _get_user_from_auth  # reuse JWT helper
+# me.py
+from flask import Blueprint, request, jsonify
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from app import db
+from app.models import User
+import json
 
-router = APIRouter()
+me_bp = Blueprint("me", __name__)
 
-@router.get("/me")
-def get_my_profile(request: Request, db: Session = Depends(get_db)):
-    user = _get_user_from_auth(db, request)
+def parse_json_field(val):
+    if not val:
+        return []
+    if isinstance(val, list):
+        return val
+    try:
+        return json.loads(val)
+    except:
+        return []
+
+@me_bp.route("/me", methods=["GET"])
+@jwt_required()
+def get_profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    return _serialize_user(user)
+        return jsonify({"error": "User not found"}), 404
+    # return full profile including JSON fields
+    profile = user.to_dict()
+    return jsonify(profile)
 
-@router.put("/me")
-def update_my_profile(request: Request, payload: dict, db: Session = Depends(get_db)):
-    user = _get_user_from_auth(db, request)
+@me_bp.route("/me", methods=["PUT"])
+@jwt_required()
+def update_profile():
+    current_user_id = get_jwt_identity()
+    user = User.query.get(current_user_id)
     if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-    
-    # Update fields safely
-    user.first_name = payload.get("firstName", user.first_name)
-    user.last_name = payload.get("lastName", user.last_name)
-    user.role = payload.get("role", user.role)
-    user.location = payload.get("location", user.location)
-    user.bio = payload.get("bio", user.bio)
-    user.rate = payload.get("rate", user.rate)
-    user.availability = payload.get("availability", user.availability)
-    user.skills = payload.get("skills", user.skills)
-    user.portfolio = payload.get("portfolio", user.portfolio)
-    user.photos = payload.get("photos", user.photos)
-    user.companies = payload.get("companies", user.companies)
-    user.avatarUrl = payload.get("avatarUrl", user.avatarUrl)
-    user.discoverable = payload.get("discoverable", user.discoverable)
+        return jsonify({"error": "User not found"}), 404
 
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    
-    return _serialize_user(user)
+    data = request.get_json() or {}
 
-# helper: serialize user to dict
-def _serialize_user(user: User):
-    return {
-        "id": user.id,
-        "firstName": user.first_name,
-        "lastName": user.last_name,
-        "role": getattr(user, "role", None),
-        "location": getattr(user, "location", None),
-        "bio": getattr(user, "bio", None),
-        "rate": getattr(user, "rate", None),
-        "availability": getattr(user, "availability", None),
-        "skills": getattr(user, "skills", []) or [],
-        "portfolio": getattr(user, "portfolio", []) or [],
-        "photos": getattr(user, "photos", []) or [],
-        "companies": getattr(user, "companies", []) or [],
-        "avatarUrl": getattr(user, "avatarUrl", None),
-        "discoverable": getattr(user, "discoverable", True)
-    }
+    # Update simple fields
+    for key in ["firstName", "lastName", "role", "location", "bio", "rate", "availability", "avatarUrl", "discoverable"]:
+        if key in data:
+            if key == "discoverable":
+                setattr(user, "discoverable", bool(data[key]))
+            elif key == "avatarUrl":
+                setattr(user, "avatarUrl", data[key])
+            elif key == "rate":
+                try:
+                    setattr(user, "rate", float(data[key]))
+                except:
+                    pass
+            else:
+                setattr(user, key.lower(), data[key])
+
+    # Update JSON fields
+    for key in ["skills", "portfolio", "photos", "companies"]:
+        if key in data:
+            setattr(user, key.lower(), json.dumps(data[key]))
+
+    db.session.commit()
+    return jsonify(user.to_dict())
