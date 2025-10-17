@@ -1,7 +1,22 @@
-venv/
+# Ignore database files
+*.db
+*.sqlite3
+*.sqlite
+/data/
+/migrations/
 __pycache__/
-*.pyc
-uploads/
+instance/
+*.log
+
+# Ignore environment and config
 .env
+venv/
+env/
 node_modules/
-.vscode/
+__pycache__/
+.DS_Store
+
+# Ignore compiled files
+*.pyc
+*.pyo
+*.pyd
