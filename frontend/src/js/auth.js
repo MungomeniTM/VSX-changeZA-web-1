@@ -1,7 +1,7 @@
 // ===========================
 // API BASE URL
 // ===========================
-const API_URL = "http://127.0.0.1:5000"; // Backend running on 8000
+const API_URL = "http://127.0.0.1:5000"; // Backend running on 5000
 
 // ===========================
 // AUTH UTILITIES
@@ -57,11 +57,11 @@ if (registerForm) {
         window.location.href = "login.html";
       } else {
         console.error("❌ Registration failed:", data);
-        alert(`Registration failed: ${data.detail || "Unknown error"}`);
+        alert(`Registration failed: ${data.error || data.message || data.detail || "Unknown error"}`);
       }
     } catch (err) {
       console.error("⚠️ Register error:", err);
-      alert("Server error: Unable to reach API. Make sure backend is running on port 8000.");
+      alert("Server error: Unable to reach API. Make sure backend is running on port 5000.");
     }
   });
 }
@@ -103,5 +103,45 @@ if (registerForm) {
         alert("Server error: Unable to reach API. Make sure backend is running on port 5000.");
       }
     });
+  }
+
+  // Add password toggles + live match feedback
+  function addPasswordToggle(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const wrap = document.createElement('div');
+    wrap.className = 'pw-wrap';
+    input.parentNode.insertBefore(wrap, input);
+    wrap.appendChild(input);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pw-toggle';
+    btn.textContent = '👁';
+    btn.addEventListener('click', () => {
+      input.type = input.type === 'password' ? 'text' : 'password';
+      btn.textContent = input.type === 'password' ? '👁' : '👁';
+    });
+    wrap.appendChild(btn);
+  }
+
+  // Show/hide for login and register
+  addPasswordToggle('password');
+  addPasswordToggle('confirmPassword');
+
+  // live match indicator for register
+  const pw = document.getElementById('password');
+  const cpw = document.getElementById('confirmPassword');
+  if (cpw) {
+    const matchEl = document.createElement('div');
+    matchEl.className = 'pw-match';
+    cpw.parentNode.appendChild(matchEl);
+
+    function updateMatch() {
+      if (!pw.value && !cpw.value) { matchEl.textContent = ''; matchEl.className = 'pw-match'; return; }
+      if (pw.value === cpw.value) { matchEl.textContent = 'Passwords match'; matchEl.classList.add('match'); matchEl.classList.remove('nomatch'); }
+      else { matchEl.textContent = 'Passwords do not match'; matchEl.classList.add('nomatch'); matchEl.classList.remove('match'); }
+    }
+    pw?.addEventListener('input', updateMatch);
+    cpw?.addEventListener('input', updateMatch);
   }
 });
