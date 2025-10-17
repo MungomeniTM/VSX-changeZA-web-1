@@ -9,29 +9,46 @@ from app.models.post import Post
 from app.models.user import User
 from app.models.comment import Comment
 from app.core.config import UPLOAD_DIR
+import jwt
+from app.core.config import settings
 
 router = APIRouter()
 
 # ensure upload dir exists
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# -----------------------------
+# JWT-aware user helper
+# -----------------------------
 def _get_user_from_auth(db: Session, request: Request):
-    # Dev-friendly: if Authorization header contains an integer token, treat it as user id.
     auth = request.headers.get("Authorization")
-    if auth and auth.startswith("Bearer "):
-        token = auth.split(" ", 1)[1]
-        # if token is a plain integer (dev), return that user
-        try:
-            uid = int(token)
-            u = db.query(User).get(uid)
-            if u:
-                return u
-        except Exception:
-            pass
-        # else you might decode JWT here in prod
-    # fallback: return first user (dev convenience)
-    return db.query(User).first()
+    if not auth or not auth.startswith("Bearer "):
+        return None
 
+    token = auth.split(" ", 1)[1]
+
+    # Dev-friendly: integer token for local testing
+    try:
+        user_id = int(token)
+        return db.query(User).get(user_id)
+    except ValueError:
+        pass  # not an integer, try JWT
+
+    # Decode JWT token
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        user_id = payload.get("user_id") or payload.get("id")
+        if not user_id:
+            return None
+        return db.query(User).get(user_id)
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+# -----------------------------
+# Routes
+# -----------------------------
 @router.get("/posts")
 def list_posts(db: Session = Depends(get_db), page: int = 1, limit: int = 12):
     offset = (page - 1) * limit
@@ -128,77 +145,27 @@ def get_comments(post_id: int, db: Session = Depends(get_db)):
 
 @router.post("/posts/{post_id}/comments")
 def create_comment(post_id: int, request: Request, payload: dict = None, db: Session = Depends(get_db)):
-    # Accept both JSON body and form data 'text' for convenience
     user = _get_user_from_auth(db, request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    body = {}
-    try:
-        body = request.json()  # may fail for form
-    except Exception:
-        pass
-    text = None
-    if body and isinstance(body, dict):
-        text = body.get("text")
-    if not text:
-        # try to read form body
-        form = request._body if hasattr(request, "_body") else None
-    # fallback: read request body raw (fastapi normally passes json)
-    req_text = None
-    try:
-        req = request._json if hasattr(request, "_json") else None
-    except Exception:
-        req = None
 
-    # Best option: read from Starlette Request body quickly (synchronous; ok small)
-    try:
-        import json as _json
-        raw = request.stream()
-    except Exception:
-        pass
-
-    # Simpler approach: accept JSON via fetch -> earlier frontend sends JSON
-    try:
-        j = request.json()
-    except Exception:
-        j = None
-
-    # Instead rely on FastAPI auto mapping: if client sends JSON, FastAPI would pass data in function param (not used here)
-    # For reliability, expect frontend sends JSON. We'll manually attempt to parse request._body if available.
-    data = None
-    try:
-        body_bytes = request._body if hasattr(request, "_body") else None
-    except Exception:
-        body_bytes = None
-
-    # Ultimately: support standard JSON POSTs that the frontend sends using fetch(JSON).
-    # So we will attempt to read body via request.json() (works with normal FastAPI routing when param declared).
-    try:
-        data = request.json()
-    except Exception:
-        data = None
-
-    # Best compromise: read text from request._body_bytes (if any) or expect payload param
     text_val = None
-    try:
-        # If FastAPI passed json parsed into payload param (rare), use it.
-        if isinstance(payload, dict):
-            text_val = payload.get("text")
-    except Exception:
-        pass
-
-    # If still None, attempt to parse request body synchronously from request._body (Starlette internal)
-    try:
-        body_raw = request._body if hasattr(request, "_body") else None
-        if body_raw:
-            import json as _json
-            parsed = _json.loads(body_raw.decode() if isinstance(body_raw, (bytes, bytearray)) else body_raw)
-            text_val = text_val or parsed.get("text")
-    except Exception:
-        pass
+    # Prefer payload param if frontend sends JSON via fetch
+    if isinstance(payload, dict):
+        text_val = payload.get("text")
 
     if not text_val:
-        # Last fallback: raise
+        # fallback to request body raw (Starlette internal)
+        try:
+            body_raw = request._body if hasattr(request, "_body") else None
+            if body_raw:
+                import json as _json
+                parsed = _json.loads(body_raw.decode() if isinstance(body_raw, (bytes, bytearray)) else body_raw)
+                text_val = text_val or parsed.get("text")
+        except Exception:
+            pass
+
+    if not text_val:
         raise HTTPException(status_code=400, detail="Missing 'text' in body")
 
     comment = Comment(post_id=post_id, user_id=user.id, text=text_val)
