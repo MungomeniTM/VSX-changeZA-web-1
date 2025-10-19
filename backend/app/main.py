@@ -15,7 +15,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
 )
 from werkzeug.utils import secure_filename
-from app.core.config import Config
+from core.config import Config
 
 # Optional cloudinary
 try:
