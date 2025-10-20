@@ -1,18 +1,24 @@
-// dashboard.js — Cosmic Alien Edition
+// dashboard.js — Cosmic Alien Edition (Flask-Compatible, Fully Functional)
 // flawless integration: feed, profile, posts, analytics, sidepanel
 
 const $ = id => document.getElementById(id);
 const create = (tag, cls) => { const el = document.createElement(tag); if (cls) el.className = cls; return el; };
 
-const API = window.API;
+// ✅ Flask API base (update if hosted elsewhere)
+const API_URL = "http://127.0.0.1:5000/api";
+
 const auth = window.auth;
 const H = window.helpers;
 
-// state
+// =======================
+// STATE
+// =======================
 let page = 1, size = 12, loading = false, hasMore = true;
 let skillsChart = null, farmChart = null;
 
-// safe API + redirect if unauthorized
+// =======================
+// SAFE API WRAPPER
+// =======================
 async function safeJson(path, opts = {}) {
   try {
     const res = await API.request(path, opts);
@@ -33,22 +39,22 @@ async function safeJson(path, opts = {}) {
 }
 
 // =======================
-// Profile
+// PROFILE
 // =======================
 async function loadProfile() {
   try {
-    const user = await safeJson('/me', { method: 'GET' });
+    const user = await safeJson('/auth/me', { method: 'GET' });
     $('userName').textContent = `${H.safeText(user.firstName)} ${H.safeText(user.lastName)}`.trim() || 'User';
     $('userRole').textContent = `${H.safeText(user.role, '—')} • ${H.safeText(user.location, '—')}`;
     $('avatar').textContent = (user.firstName || 'U').charAt(0).toUpperCase();
     if (user.id) $('profileLink').href = `./profile.html?id=${encodeURIComponent(user.id)}`;
   } catch {
-    // handled by safeJson already
+    // handled by safeJson
   }
 }
 
 // =======================
-// Feed
+// FEED
 // =======================
 function renderPostCard(p) {
   const article = create('article', 'post-card card');
@@ -86,7 +92,7 @@ async function loadFeed() {
     const posts = Array.isArray(payload.posts) ? payload.posts : (Array.isArray(payload) ? payload : []);
     posts.forEach(p => $('feed').appendChild(renderPostCard(p)));
     page++;
-    hasMore = (payload.hasMore !== undefined) ? payload.hasMore : (posts.length === size);
+    hasMore = posts.length === size;
   } catch (err) {
     console.warn('loadFeed error', err);
     if (page === 1) {
@@ -101,7 +107,7 @@ async function loadFeed() {
 }
 
 // =======================
-// Composer (Post creation)
+// COMPOSER (POST CREATION)
 // =======================
 function resetComposer() {
   $('composeText').value = '';
@@ -111,7 +117,7 @@ function resetComposer() {
   $('previewMedia').innerHTML = '';
 }
 
-$('composeFile').addEventListener('change', (ev) => {
+$('composeFile').addEventListener('change', ev => {
   const f = ev.target.files[0];
   $('fileName').textContent = f ? f.name : 'No file chosen';
 });
@@ -140,13 +146,16 @@ $('postBtn').addEventListener('click', async () => {
     const form = new FormData();
     form.append('text', text);
     if (file) form.append('media', file);
-    const res = await API.request('/posts', { method: 'POST', body: form, skipJson: true });
+    const token = auth.getToken();
+    const res = await fetch(`${API_URL}/posts`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form
+    });
     if (!res.ok) throw new Error('post failed');
     const created = await res.json();
     $('feed').prepend(renderPostCard(created));
     resetComposer();
-
-    // sync with analytics + sidepanel
     userData.listings.push(`🆕 ${created.text || 'New Post'}`);
     renderPanel("listings");
     updateAnalytics();
@@ -159,7 +168,7 @@ $('postBtn').addEventListener('click', async () => {
 });
 
 // =======================
-// Feed actions (Approve, Comment, Share)
+// FEED ACTIONS (Approve, Comment, Share)
 // =======================
 $('feed').addEventListener('click', async (ev) => {
   const likeBtn = ev.target.closest('.approve-btn');
@@ -174,6 +183,7 @@ $('feed').addEventListener('click', async (ev) => {
     } catch (err) { console.warn('approve failed', err); }
     return;
   }
+
   const commentBtn = ev.target.closest('.comment-btn');
   if (commentBtn) {
     const id = commentBtn.dataset.id;
@@ -194,7 +204,11 @@ $('feed').addEventListener('click', async (ev) => {
           b.addEventListener('click', async () => {
             const content = ta.value.trim(); if (!content) return;
             try {
-              const rr = await API.request(`/posts/${id}/comments`, { method: 'POST', body: JSON.stringify({ text: content }), headers: {'Content-Type':'application/json'} });
+              const rr = await API.request(`/posts/${id}/comments`, {
+                method: 'POST',
+                body: JSON.stringify({ text: content }),
+                headers: { 'Content-Type':'application/json' }
+              });
               if (rr.ok) {
                 const created = await rr.json();
                 const p = create('p'); p.className='muted'; p.textContent = `${created.user?.name || 'User'}: ${created.text}`;
@@ -210,6 +224,7 @@ $('feed').addEventListener('click', async (ev) => {
     }
     return;
   }
+
   const shareBtn = ev.target.closest('.share-btn');
   if (shareBtn) {
     const id = shareBtn.dataset.id;
@@ -219,9 +234,29 @@ $('feed').addEventListener('click', async (ev) => {
     } catch {
       alert(`Shareable link: ${location.origin}/posts/${id}`);
     }
-    return;
   }
 });
+
+// =======================
+// API WRAPPER (Flask Base)
+// =======================
+window.API = {
+  request: async (path, opts = {}) => {
+    opts.headers = opts.headers || {};
+    const token = auth.getToken();
+    if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+    const res = await fetch(`${API_URL}${path}`, opts);
+    return res;
+  }
+};
+
+// =======================
+// INIT
+// =======================
+(async function init() {
+  if (!auth.getToken()) { location.href = './login.html'; return; }
+  await Promise.allSettled([loadProfile(), loadFeed()]);
+})();
 
 // =======================
 // Infinite Scroll
