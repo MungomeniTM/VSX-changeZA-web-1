@@ -17,7 +17,7 @@ from flask_jwt_extended import (
 from werkzeug.utils import secure_filename
 from config import Config
 
-# Optional Cloudinary
+# Optional cloudinary
 try:
     import cloudinary
     import cloudinary.uploader
@@ -35,7 +35,7 @@ def create_app(config_class=Config):
     app = Flask(__name__, static_folder="frontend", static_url_path="/")
     app.config.from_object(config_class)
 
-    # Ensure upload folder exists
+    # ensure upload folder exists
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
     CORS(app, supports_credentials=True)
@@ -46,7 +46,7 @@ def create_app(config_class=Config):
     def index():
         return jsonify({"message": "VSXchangeZA backend running."})
 
-    # --- MODELS ---
+    # --- Models ---
     class User(db.Model):
         id = db.Column(db.Integer, primary_key=True)
         username = db.Column(db.String(80), unique=True, nullable=False)
@@ -108,7 +108,7 @@ def create_app(config_class=Config):
                 "created_at": self.created_at.isoformat(),
             }
 
-    # --- HELPERS ---
+    # --- Helpers ---
     def allowed_file(filename):
         ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         return ext in app.config["ALLOWED_IMAGE_EXTENSIONS"]
@@ -122,12 +122,13 @@ def create_app(config_class=Config):
             dest_folder = Path(app.config["UPLOAD_FOLDER"])
         dest_path = dest_folder / f"{int(datetime.utcnow().timestamp())}_{filename}"
         file_storage.save(dest_path)
-        rel_path = dest_path.relative_to(app.config["UPLOAD_FOLDER"])
-        return urljoin(request.host_url, f"uploads/{rel_path.as_posix()}")
+        # return a relative URL
+        return urljoin(request.host_url, f"uploads/{subfolder}/{dest_path.name}") if subfolder else urljoin(request.host_url, f"uploads/{dest_path.name}")
 
     def upload_to_cloudinary(file_storage, folder="vsxchange"):
         if not CLOUDINARY_AVAILABLE or not app.config.get("CLOUDINARY_URL"):
             raise RuntimeError("Cloudinary not configured or not installed.")
+        # upload
         result = cloudinary.uploader.upload(
             file_storage,
             folder=folder,
@@ -137,14 +138,10 @@ def create_app(config_class=Config):
         )
         return result.get("secure_url")
 
-    # --- AUTH ROUTES ---
+    # --- Auth routes ---
     @app.route("/auth/register", methods=["POST"])
     def register():
-        try:
-            data = request.get_json(force=True)
-        except Exception:
-            return jsonify({"error": "Invalid JSON payload"}), 400
-
+        data = request.get_json() or {}
         username = data.get("username", "").strip()
         email = data.get("email", "").strip().lower()
         password = data.get("password", "")
@@ -172,9 +169,7 @@ def create_app(config_class=Config):
         if not email_or_username or not password:
             return jsonify({"error": "Missing credentials"}), 400
 
-        user = User.query.filter(
-            (User.email == email_or_username.lower()) | (User.username == email_or_username)
-        ).first()
+        user = User.query.filter((User.email == email_or_username.lower()) | (User.username == email_or_username)).first()
         if not user or not check_password_hash(user.password_hash, password):
             return jsonify({"error": "Invalid credentials"}), 401
 
@@ -190,7 +185,8 @@ def create_app(config_class=Config):
             return jsonify({"error": "User not found"}), 404
         return jsonify({"user": user.to_dict()})
 
-    # --- UPLOAD ROUTES ---
+    # --- Upload routes ---
+
     @app.route("/upload/profile", methods=["POST"])
     @jwt_required()
     def upload_profile_picture():
@@ -208,9 +204,11 @@ def create_app(config_class=Config):
             return jsonify({"error": "File type not allowed"}), 400
 
         try:
+            # Prefer Cloudinary if configured
             if app.config.get("CLOUDINARY_URL") and CLOUDINARY_AVAILABLE:
                 url = upload_to_cloudinary(file, folder=f"vsxchange/profiles/{user.id}")
             else:
+                # local save in uploads/profiles/
                 url = save_file_locally(file, subfolder="profiles")
         except Exception as e:
             app.logger.exception("Upload error")
@@ -245,28 +243,28 @@ def create_app(config_class=Config):
             app.logger.exception("Upload error")
             return jsonify({"error": "Upload failed", "details": str(e)}), 500
 
+        # Optionally create a post record with only image (frontend can later call posts/create)
         post = Post(user_id=user.id, content=request.form.get("content", ""), image=url)
         db.session.add(post)
         db.session.commit()
         return jsonify({"message": "Post created with image", "post": post.to_dict()}), 201
 
-    # --- STATIC UPLOAD FILES ---
+    # Serve uploaded files locally (only for local dev)
     @app.route("/uploads/<path:filename>")
     def uploaded_file(filename):
         upload_dir = Path(app.config["UPLOAD_FOLDER"])
+        # Make sure path traversal can't be used
         safe_path = upload_dir / Path(filename).name
         if not safe_path.exists():
             return jsonify({"error": "Not found"}), 404
-        return send_from_directory(upload_dir, safe_path.name)
+        return send_from_directory(app.config["UPLOAD_FOLDER"], safe_path.name)
 
-    # --- POSTS & COMMENTS ---
+    # --- Posts endpoints (basic) ---
     @app.route("/posts", methods=["GET"])
     def list_posts():
         page = int(request.args.get("page", 1))
         per_page = min(int(request.args.get("per_page", 20)), 50)
-        posts = Post.query.order_by(Post.created_at.desc()).paginate(
-            page=page, per_page=per_page, error_out=False
-        )
+        posts = Post.query.order_by(Post.created_at.desc()).paginate(page=page, per_page=per_page, error_out=False)
         return jsonify({
             "items": [p.to_dict() for p in posts.items],
             "page": posts.page,
@@ -284,7 +282,7 @@ def create_app(config_class=Config):
     def create_post():
         data = request.get_json() or {}
         content = data.get("content", "").strip()
-        image = data.get("image")
+        image = data.get("image")  # URL from upload endpoint
         if not content and not image:
             return jsonify({"error": "content or image is required"}), 400
         current_user_id = get_jwt_identity()
@@ -293,6 +291,7 @@ def create_app(config_class=Config):
         db.session.commit()
         return jsonify({"message": "post created", "post": post.to_dict()}), 201
 
+    # Comments
     @app.route("/posts/<int:post_id>/comments", methods=["POST"])
     @jwt_required()
     def create_comment(post_id):
@@ -309,15 +308,13 @@ def create_app(config_class=Config):
         db.session.commit()
         return jsonify({"message": "comment created", "comment": comment.to_dict()}), 201
 
-    # --- ANALYTICS ---
+    # Simple analytics endpoints (counts)
     @app.route("/analytics/summary", methods=["GET"])
     def analytics_summary():
         total_users = User.query.count()
         total_posts = Post.query.count()
         total_comments = Comment.query.count()
-        recent_24h_posts = Post.query.filter(
-            Post.created_at >= datetime.utcnow() - timedelta(days=1)
-        ).count()
+        recent_24h_posts = Post.query.filter(Post.created_at >= datetime.utcnow() - timedelta(days=1)).count()
         return jsonify({
             "users": total_users,
             "posts": total_posts,
@@ -325,7 +322,7 @@ def create_app(config_class=Config):
             "posts_last_24h": recent_24h_posts
         })
 
-    # --- ERROR HANDLERS ---
+    # --- Error handlers ---
     @app.errorhandler(404)
     def not_found(e):
         return jsonify({"error": "Not found"}), 404
@@ -333,8 +330,9 @@ def create_app(config_class=Config):
     @app.errorhandler(500)
     def server_error(e):
         app.logger.exception("Server error")
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+        return jsonify({"error": "Server error"}), 500
 
+    # Expose DB models on app for interactive usage
     app.db = db
     app.User = User
     app.Post = Post
@@ -345,8 +343,7 @@ def create_app(config_class=Config):
 
 if __name__ == "__main__":
     app = create_app()
+    # create tables if not exist (dev convenience)
     with app.app_context():
-        # ✅ Ensure DB file and upload folder exist safely
-        Path(app.config["UPLOAD_FOLDER"]).mkdir(parents=True, exist_ok=True)
         db.create_all()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
